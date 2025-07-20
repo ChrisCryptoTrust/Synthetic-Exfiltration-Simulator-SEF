@@ -250,7 +250,7 @@ def reformatIncludeFile(include, sourceDirectory):
 def main():
     sourceDirectory = os.environ['USERPROFILE']+'\\Documents'
 
-    testCaseFile = open('testCaseFile9.csv')
+    testCaseFile = open('testCaseFile.csv')
     testCaseDictReader = csv.DictReader(testCaseFile)
 
     testOutputFile = open('SEFOutput.csv','a', newline='')
