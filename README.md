@@ -28,6 +28,6 @@ For example, if testCaseFile.CSV is:
   sef,	sftp,	ubuntuTarget,	bob,	bobpassword, include.txt
   scp, sftp, ubuntuTarget,bob, bobpassword, include.txt
 
-then running SEFHarness.py will execute sytheticExfil.py using protocol SFTP, filtering applied using include.txt followed by 
+then running SEFHarness.py will execute sytheticExfil.py using protocol SFTP, filtering applied using include.txt followed by WinSCP also (in this eexample) using SFTP to copy the same files to the same destinaiton. Various performance metrics are displayed on screen and captured to file SEFOutput.csv.
 
 For FreeFileSync batch files will need to be created using FreeFileSync and saved as 
