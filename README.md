@@ -1,7 +1,7 @@
 # Synthetic-Exfiltration-Simulator (SEF)
 
 ## syntheticExfil.py
-This script performs a file transfer from a specified source to a given tagret using the requetsed protocol. Protocols supported FTP, FTPS, SFTP, WebDav and MEGA,
+This script performs a file transfer from a %USERPROFILE%\Documents\uploads to a specifief host target. Protocols supported are FTP, FTPS, SFTP, WebDav and MEGA. The --include option can be used to specify the name of a file containing file extensions (one per line). If speficifed only files of these types will be copied. include.txt provided as an example. 
 
 Usage:
 
@@ -24,3 +24,5 @@ will copy all files in %USERPROFILE%/Documents to the host with name targetname 
 This script takes as input testCaseFile.csv. For each entry in the file a data exfiltration simulation will be peformed. Output will be displayed at the terminal and also writted to SEFHarnessOutput.csv
 
 For example, if testCaseFile.CSV is set as:
+
+For FreeFileSync batch files will need to be created using FreeFileSync and saved as 
