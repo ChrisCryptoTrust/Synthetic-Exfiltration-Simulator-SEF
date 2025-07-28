@@ -20,9 +20,14 @@ syntheteExfil.py --target targetName -l username -p assword --protocol ftp
 will copy all files in %USERPROFILE%/Documents to the host with name targetname using protocol FTP. Authentication using the supplied username and password.
 
 
-## SEFHarness.Py
+## SEFHarness.py
 This script takes as input testCaseFile.csv. For each entry in the file a data exfiltration simulation will be peformed. Output will be displayed at the terminal and also writted to SEFHarnessOutput.csv
 
-For example, if testCaseFile.CSV is set as:
+For example, if testCaseFile.CSV is:
+  tool,	protocol,	target,	user,	password,	source,	include
+  sef,	sftp,	ubuntuTarget,	bob,	bobpassword, include.txt
+  scp, sftp, ubuntuTarget,bob, bobpassword, include.txt
+
+then running SEFHarness.py will execute sytheticExfil.py using protocol SFTP, filtering applied using include.txt followed by 
 
 For FreeFileSync batch files will need to be created using FreeFileSync and saved as 
