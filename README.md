@@ -24,19 +24,19 @@ will copy all files in %USERPROFILE%/Documents to the host with name targetname 
 This script takes as input testCaseFile.csv. For each entry in the file a data exfiltration simulation will be peformed. Output will be displayed at the terminal and also writted to SEFHarnessOutput.csv
 
 For example, if testCaseFile.CSV is:
----
+
   tool,	protocol,	target,	user,	password,	source,	include
   sef,	sftp,	ubuntuTarget,	bob,	bobpassword, include.txt
   scp, sftp, ubuntuTarget,bob, bobpassword, include.txt
----
+
 
 then running SEFHarness.py will execute sytheticExfil.py using protocol SFTP, filtering applied using include.txt followed by WinSCP also (in this eexample) using SFTP to copy the same files to the same destinaiton. Various performance metrics are displayed on screen and captured to file SEFOutput.csv.
 
 supported values for tool are: 
 1. sef (synthetic exfiltration simulator, sytheticexfil.py) as provided here, scp (winscp),
-2. scp (winscp)
+2. winscp
 3. freefilesync
 4. restic
 5. rclone
 
-For FreeFileSync batch files will need to be created using FreeFileSync and saved as 
+For FreeFileSync batch files will need to be created using FreeFileSync and saved as <protocol>batchRun.ffs_batch.ffs_batch. Where <protocol> is one of ftp, ftps or sftp.
