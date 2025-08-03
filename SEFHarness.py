@@ -15,7 +15,7 @@ def fileZillaTest(protocol):
 
     return
 
-def WinSCPTest(protocol, user, password, include):
+def WinSCPTest(protocol, user, password, sourceDirectory, include):
     
     includeList = []
     if include != "":
@@ -41,18 +41,20 @@ def WinSCPTest(protocol, user, password, include):
             winscpscriptfile.write('open ftps://'+user+':'+password+'@ubuntuTarget/ -hostkey=* -explicittls\n')
         case 'sftp':
             winscpscriptfile.write('open sftp://'+user+':'+password+'@ubuntuTarget/ -hostkey=*\n')
-            destination = 'sftp'
+            # uncomment iif you want files to go to ./sftp
+            # destination = 'sftp'
         case 'webdav':
             winscpscriptfile.write('open http://ubuntuTarget/webdav/ -hostkey=*\n')    
         case 'scp':
             winscpscriptfile.write('open scp://'+user+':'+password+'@ubuntuTarget/ -hostkey=*\n')
-            destination = 'scp'
+            # uncomment if you want files copied to ./scp
+            # destination = 'scp'
 
     if include == "":
-        winscpscriptfile.write(r'put %USERPROFILE%\documents\* ./'+destination+r'/')
+        winscpscriptfile.write(r'put ' + sourceDirectory + '\\* ./'+destination+r'/')
     else:
         for i in includeList:
-            winscpscriptfile.write(r'put %USERPROFILE%\documents\* ./'+destination+r'/ -filemask=*'+i+' -rawtransfersettings ExcludeEmptyDirectories=1\n')
+            winscpscriptfile.write(r'put ' + sourceDirectory + '\\* ./'+destination+r'/ -filemask=*'+i+' -rawtransfersettings ExcludeEmptyDirectories=1\n')
 
     winscpscriptfile.write('\n')
     winscpscriptfile.write('exit\n')
@@ -75,8 +77,9 @@ def resticTest(protocol, user, password, sourceDirectory, include):
             resticCommand = 'restic -r sftp:'+user+'@ubuntuTarget:/home/'+user+'/sftp/restic-repo init --insecure-no-password'
             x=subprocess.run(resticCommand,shell=True,capture_output=True,text=True)
            
-            if x.stderr != "":
-                print('restic sftp repository init error, stderr:', x.stderr)
+            # if repository already exisst, the error can be ignored
+            # if x.stderr != "":
+            #    print('restic sftp repository init error, stderr:', x.stderr)
 
             resticCommand = 'restic -r sftp:'+user+'@ubuntuTarget:/home/'+user+'/sftp/restic-repo backup --verbose --insecure-no-password '
 
@@ -91,7 +94,7 @@ def resticTest(protocol, user, password, sourceDirectory, include):
                 print('restic sftp repository backup error, stderr:', x.stderr)
 
         case 'rest':
-            # Create a restic reposityr. If it already exisst we can ignroe the error
+            # Create a restic reposityr. If it already exisst we can ignore the error
             resticCommand = 'restic -r rest:http://ubuntuTarget:8000/ init --insecure-no-password'
             print('Restic init command:', resticCommand)
             x=subprocess.run(resticCommand,shell=True,capture_output=True,text=True)
@@ -104,7 +107,7 @@ def resticTest(protocol, user, password, sourceDirectory, include):
             x=subprocess.run(resticCommand,shell=True,capture_output=True,text=True)
 
             if x.stderr != "":
-                print('restic rest repository init error, stderr:', x.stderr)
+                print('restic rest repository forget error, stderr:', x.stderr)
 
             resticCommand = 'restic -r rest:http://ubuntuTarget:8000/ backup --verbose --insecure-no-password --tag SEFHarness '
 
@@ -112,6 +115,7 @@ def resticTest(protocol, user, password, sourceDirectory, include):
                 resticCommand = resticCommand + sourceDirectory
             else:
                 resticCommand = resticCommand + '--files-from includeReformat.txt'
+            
             print('Restic command:', resticCommand)
             x=subprocess.run(resticCommand,shell=True,capture_output=True,text=True)
             
@@ -192,7 +196,7 @@ def rcloneTest(protocol, sourceDirectory, include):
 
 def freeFileSyncTest(protocol, include):
 
-    # Assumes existence of freefilesync batch file named ftpBatchrun.ffs_batch, sftpBatchrun.ffs_batch,
+    # Assumes existence of freefilesync batch file named ftpBatfftpsun.ffs_batch, sftpBatchrun.ffs_batch,
     # ftpBatchrunInclude.ffs_batch and sftpBatchrunInclude.ffs_batch. Include harcoded to .docx and .pptx
 
     includeString = ""
@@ -248,9 +252,9 @@ def reformatIncludeFile(include, sourceDirectory):
     return
 
 def main():
-    sourceDirectory = os.environ['USERPROFILE']+'\\Documents'
+    sourceDirectory = os.environ['USERPROFILE']+'\\Documents\\upload'
 
-    testCaseFile = open('testCaseFile.csv')
+    testCaseFile = open('testCaseFile9.csv')
     testCaseDictReader = csv.DictReader(testCaseFile)
 
     testOutputFile = open('SEFOutput.csv','a', newline='')
@@ -265,14 +269,16 @@ def main():
         if testCase['include'] != "":
             reformatIncludeFile(testCase['include'], sourceDirectory)
         
+        testCase['protocol'] = testCase['protocol'].lower()
+
         startNetBytes = psutil.net_io_counters()
         startTime=time.time()
         
-        match testCase['tool']:
+        match testCase['tool'].lower():
             case 'sef':
                 sef.dataExfiltration(testCase['protocol'], testCase['target'], testCase['user'], testCase['password'], testCase['source'], testCase['include'])
             case 'winscp':
-                WinSCPTest(testCase['protocol'], testCase['user'], testCase['password'], testCase['include'])
+                WinSCPTest(testCase['protocol'], testCase['user'], testCase['password'], sourceDirectory, testCase['include'])
             case 'restic':
                 resticTest(testCase['protocol'], testCase['user'], testCase['password'], sourceDirectory, testCase['include'])
             case 'rclone':
