@@ -6,6 +6,7 @@ import csv
 import os
 import psutil
 import random
+import argparse
 
 def fileZillaTest(protocol):
 
@@ -218,9 +219,9 @@ def freeFileSyncTest(protocol, include):
 
     return
 
-def resetTargetFiles(user, password):
-    # Reset exfiltration target file system
-    reset = "plink -ssh ubuntuTarget -l "+user+" -pw "+password+" -no-antispoof '/home/"+user+"/reset.sh'"
+def resetTargetFiles(target, user, password):
+    # Reset exfiltration target file system. You need to create reset.sh to do any required between run tidy up
+    reset = "plink -ssh "+target+ " -l "+user+" -pw "+password+" -no-antispoof '/home/"+user+"/reset.sh'"
     x=subprocess.run(reset,shell=True,capture_output=True,text=True)
 
     if x.stderr == "":
@@ -252,9 +253,21 @@ def reformatIncludeFile(include, sourceDirectory):
     return
 
 def main():
+    parser = argparse.ArgumentParser(description="Synthetic exfiltration test harness. This utility will read file testCaseFile.csv and " \
+                                     "run each of the listed exfiltration tools. Supported tools are rclone, restic, FreeFileSync, MEGA and WinSCP. " \
+                                     "The synthetic tool delivered as part of this project, SEF, can also be run. Performance metrics are written to " \
+                                     "file SEFoutput.CSV")
+    parser.add_argument('--reset',
+                        '-r', 
+                        help='Optional flag, if set will run a (user supplied) script named reset.sh on target. This can be used to delete files ' \
+                            "before running",
+                        action='store_true'
+                        )
+    args = parser.parse_args()
+                                     
     sourceDirectory = os.environ['USERPROFILE']+'\\Documents\\upload'
 
-    testCaseFile = open('testCaseFile9.csv')
+    testCaseFile = open('testCaseFile.csv')
     testCaseDictReader = csv.DictReader(testCaseFile)
 
     testOutputFile = open('SEFOutput.csv','a', newline='')
@@ -264,7 +277,9 @@ def main():
     print('Test file:', testCaseFile.name)
            
     for testCase in testCaseDictReader:
-        resetTargetFiles(testCase['user'], testCase['password'])
+        
+        if args.reset == True:
+            resetTargetFiles(testCase['target'], testCase['user'], testCase['password'])
 
         if testCase['include'] != "":
             reformatIncludeFile(testCase['include'], sourceDirectory)
