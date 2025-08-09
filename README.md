@@ -1,7 +1,7 @@
 # Synthetic-Exfiltration-Simulator (SEF)
 
 ## syntheticExfil.py
-This script performs a file transfer from a %USERPROFILE%\Documents\uploads or %USERPROFILE%\OneDrive\Documents\uploads to a specifief host target. Protocols supported are FTP, FTPS, SFTP, WebDav and MEGA. The --include option can be used to specify the name of a file containing file extensions (one per line). If speficifed only files of these types will be copied. include.txt provided as an example. 
+This script performs a file transfer from a %USERPROFILE%\Documents\upload or %USERPROFILE%\OneDrive\Documents\upload to a specifief host target. Protocols supported are FTP, FTPS, SFTP, WebDav and MEGA. The --include option can be used to specify the name of a file containing file extensions (one per line). If speficifed only files of these types will be copied. include.txt provided as an example. 
 
 Usage:
 
