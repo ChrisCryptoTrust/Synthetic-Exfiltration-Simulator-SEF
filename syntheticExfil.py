@@ -179,7 +179,7 @@ def dataExfiltration(protocol, host, user, passwd, source, include):
     source = pathlib.Path(os.environ['USERPROFILE']+'\\OneDrive\\Documents\\upload')
 
     if not os.path.isdir(source):
-        source = pathlib.Path(os.environ['USERPROFILE']+'\\\\Documents\\upload')
+        source = pathlib.Path(os.environ['USERPROFILE']+'\\Documents\\upload')
         
     try:
        os.chdir(source)
@@ -272,3 +272,4 @@ if __name__ == '__main__':
     dataExfiltration(args.protocol, args.host, args.user,args.passwd, source, args.include)
 
     logging.debug('End of program')
+
